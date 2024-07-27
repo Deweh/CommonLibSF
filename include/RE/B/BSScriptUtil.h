@@ -172,6 +172,14 @@ namespace RE::BSScript
 		using is_string = std::true_type;
 	};
 
+	template <class CharT, bool CS>
+	struct script_traits<
+		RE::detail::BSFixedString<CharT, CS>>
+		final
+	{
+		using is_string = std::true_type;
+	};
+
 	template <class T>
 	struct script_traits<
 		std::optional<T>>
