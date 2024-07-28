@@ -140,6 +140,7 @@
 #include "RE/B/BGSResource.h"
 #include "RE/B/BGSResourceGenerationData.h"
 #include "RE/B/BGSReverbParameters.h"
+#include "RE/B/BGSSaveLoadGame.h"
 #include "RE/B/BGSSaveLoadManager.h"
 #include "RE/B/BGSScene.h"
 #include "RE/B/BGSSecondaryDamageList.h"
