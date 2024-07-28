@@ -380,6 +380,7 @@
 #include "RE/T/TESFile.h"
 #include "RE/T/TESFlora.h"
 #include "RE/T/TESForm.h"
+#include "RE/T/TESFormIDRemapEvent.h"
 #include "RE/T/TESFormRefCount.h"
 #include "RE/T/TESFullName.h"
 #include "RE/T/TESFurniture.h"
