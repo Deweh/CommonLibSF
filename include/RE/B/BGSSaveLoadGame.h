@@ -12,7 +12,7 @@ namespace RE
 			return func(this, a_unk1, a_unk2, a_name);
 		}
 
-		void LoadGame(const char* a_name, void* a_unk1, void* a_unk2)
+		bool LoadGame(const char* a_name, void* a_unk1, void* a_unk2)
 		{
 			using func_t = decltype(&BGSSaveLoadGame::LoadGame);
 			REL::Relocation<func_t> func{ REL::ID(147564) };
