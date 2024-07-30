@@ -536,6 +536,7 @@ namespace RE::BSScript
 			}
 
 			a_var = std::move(object);
+			a_var.SetComplexType(typeInfo.get());
 			return true;
 		}();
 
