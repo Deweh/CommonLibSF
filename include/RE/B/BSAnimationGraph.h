@@ -2,6 +2,7 @@
 
 #include "RE/B/BSIntrusiveRefCounted.h"
 #include "RE/B/BSTEvent.h"
+#include "RE/B/BSTSmartPointer.h"
 
 namespace RE
 {
@@ -67,20 +68,25 @@ namespace RE
 		virtual void Unk_2C();                                     // 2C
 	};
 
+	class AnimationManager : public BSAnimationGraph
+	{
+	public:
+		std::byte unkB0[0x3C0 - 0xB0];  // B0
+	};
+	static_assert(sizeof(AnimationManager) == 0x3C0);
+
 	class BSAnimationGraphManager :
 		public BSTEventSink<BSAnimationGraphEvent>,
 		public BSIntrusiveRefCounted
 	{
 	public:
-		uint16_t          graphsSize;      // 0C
-		uint16_t          unk0E;           // 0E
-		std::byte         unk10[0xE];      // 10
-		uint16_t          activeGraphIdx;  // 1E
-		std::byte         unk20[0x1C];     // 20
-		BSAnimationGraph* graphs;          // 40 - unknown array type
+		uint16_t                           graphsSize;          // 0C
+		uint16_t                           unk0E;               // 0E
+		std::byte                          unk10[0xE];          // 10
+		uint16_t                           activeGraphIdx;      // 1E
+		std::byte                          unk20[0x1C];         // 20
+		BSTSmartPointer<BSAnimationGraph>* graphs;              // 40 - unknown array type
+		std::byte                          unk48[0x80 - 0x48];  // 48
 	};
-	static_assert(offsetof(BSAnimationGraphManager, BSAnimationGraphManager::graphsSize) == 0xC);
-	static_assert(offsetof(BSAnimationGraphManager, BSAnimationGraphManager::unk0E) == 0xE);
-	static_assert(offsetof(BSAnimationGraphManager, BSAnimationGraphManager::activeGraphIdx) == 0x1E);
-	static_assert(offsetof(BSAnimationGraphManager, BSAnimationGraphManager::graphs) == 0x40);
+	static_assert(sizeof(BSAnimationGraphManager) == 0x80);
 }
