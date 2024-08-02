@@ -71,22 +71,33 @@ namespace RE
 	class AnimationManager : public BSAnimationGraph
 	{
 	public:
+		virtual ~AnimationManager();
+
 		std::byte unkB0[0x3C0 - 0xB0];  // B0
 	};
-	static_assert(sizeof(AnimationManager) == 0x3C0);
+	// FIXME: compiler doesn't recognize vtable pointer as part of the size, but intellisense does.
+	static_assert(sizeof(AnimationManager) == 0x3C0 - 0x8);
 
 	class BSAnimationGraphManager :
 		public BSTEventSink<BSAnimationGraphEvent>,
 		public BSIntrusiveRefCounted
 	{
 	public:
-		uint16_t                           graphsSize;          // 0C
-		uint16_t                           unk0E;               // 0E
-		std::byte                          unk10[0xE];          // 10
-		uint16_t                           activeGraphIdx;      // 1E
-		std::byte                          unk20[0x1C];         // 20
-		BSTSmartPointer<BSAnimationGraph>* graphs;              // 40 - unknown array type
-		std::byte                          unk48[0x80 - 0x48];  // 48
+		virtual ~BSAnimationGraphManager();
+
+		std::uint16_t graphsSize;           // 0C
+		std::uint16_t unk0E;                // 0E
+		std::byte     unk10[0xE];           // 10
+		std::uint16_t activeGraphIdx;       // 1E
+		std::byte     unk20[0x18];          // 20
+		std::uint32_t _capacity: 31;        // 38:00
+		std::uint32_t _local: 1;            // 38:31
+		union
+		{
+			RE::BSTSmartPointer<RE::BSAnimationGraph>* _heap;
+			RE::BSTSmartPointer<RE::BSAnimationGraph>  _stack;
+		};                             // 40
+		std::byte unk48[0x80 - 0x48];  // 48
 	};
 	static_assert(sizeof(BSAnimationGraphManager) == 0x80);
 }
