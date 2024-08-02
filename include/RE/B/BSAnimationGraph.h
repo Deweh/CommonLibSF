@@ -3,6 +3,7 @@
 #include "RE/B/BSIntrusiveRefCounted.h"
 #include "RE/B/BSTEvent.h"
 #include "RE/B/BSTSmartPointer.h"
+#include "RE/B/BSLock.h"
 
 namespace RE
 {
@@ -83,21 +84,47 @@ namespace RE
 		public BSIntrusiveRefCounted
 	{
 	public:
+		// TODO: Properly implement BSTSmallArray
+		template <typename T, std::uint32_t N>
+		class SmallArray
+		{
+		public:
+			inline std::uint32_t size() { return _size; }
+			inline void*         data() { return _local ? _stack : _heap; }
+
+			inline T& operator[](std::uint32_t a_idx)
+			{
+				return static_cast<T*>(data())[a_idx];
+			}
+
+			std::uint32_t _size;
+			std::uint32_t _unk;
+			std::uint32_t _capacity: 31;
+			std::uint32_t _local: 1;
+			union
+			{
+				void*     _heap;
+				std::byte _stack[sizeof(T) * N];
+			};
+		};
+
 		virtual ~BSAnimationGraphManager();
 
-		std::uint16_t graphsSize;           // 0C
-		std::uint16_t unk0E;                // 0E
-		std::byte     unk10[0xE];           // 10
-		std::uint16_t activeGraphIdx;       // 1E
-		std::byte     unk20[0x18];          // 20
-		std::uint32_t _capacity: 31;        // 38:00
-		std::uint32_t _local: 1;            // 38:31
-		union
-		{
-			RE::BSTSmartPointer<RE::BSAnimationGraph>* _heap;
-			RE::BSTSmartPointer<RE::BSAnimationGraph>  _stack;
-		};                             // 40
-		std::byte unk48[0x80 - 0x48];  // 48
+		std::uint32_t                                    unk0C;                 // 0C
+		std::uint32_t                                    unk10;                 // 10
+		std::uint32_t                                    unk14;                 // 14
+		std::uint32_t                                    unk18;                 // 18
+		std::uint32_t                                    unk1C;                 // 1C
+		std::uint32_t                                    unk20;                 // 20
+		std::uint32_t                                    unk24;                 // 24
+		std::uint32_t                                    unk28;                 // 28
+		std::uint32_t                                    unk2C;                 // 2C
+		SmallArray<BSTSmartPointer<BSAnimationGraph>, 1> graphs;                // 30
+		std::uint32_t                                    unk50[0x8];            // 50
+		BSSpinLock                                       updateLock;            // 68
+		BSSpinLock                                       dependentManagerLock;  // 70
+		std::uint32_t                                    activeGraph;           // 78
+		std::uint32_t                                    generateDepth;         // 7C
 	};
 	static_assert(sizeof(BSAnimationGraphManager) == 0x80);
 }
