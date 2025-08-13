@@ -7,7 +7,7 @@ namespace RE::BSScript
 	class __declspec(novtable) IVMRemoteDebuggerInterface
 	{
 	public:
-		SF_RTTI_VTABLE(BSScript__IVMRemoteDebuggerInterface);
+		SF_RTTI(BSScript__IVMRemoteDebuggerInterface);
 
 		~IVMRemoteDebuggerInterface() = delete;
 

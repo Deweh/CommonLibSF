@@ -19,16 +19,30 @@ namespace RE
 
 		[[nodiscard]] BSExtraData* GetByType(ExtraDataType a_type) const noexcept
 		{
-			using func_t = decltype(&BaseExtraList::GetByType);
-			static REL::Relocation<func_t> func{ ID::BaseExtraList::GetByType };
-			return func(this, a_type);
+			if (!HasType(a_type))
+				return nullptr;
+
+			for (auto iter = m_head; iter; iter = iter->next)
+				if (iter->type == a_type)
+					return iter;
+
+			return nullptr;
+		}
+
+		bool HasType(ExtraDataType a_type) const noexcept
+		{
+			const auto    type = std::to_underlying(a_type);
+			std::uint32_t index = type >> 3;
+			std::uint8_t  bit = 1 << (type & 7);
+
+			return m_flags && (m_flags[index] & bit);
 		}
 
 	private:
 		// members
-		BSExtraData*  _head{};                         // 00
-		BSExtraData** _tail{ std::addressof(_head) };  // 08
-		std::uint8_t* _flags{};                        // 10
+		BSExtraData*  m_head{};                          // 00
+		BSExtraData** m_tail{ std::addressof(m_head) };  // 08
+		std::uint8_t* m_flags{};                         // 10
 	};
 	static_assert(sizeof(BaseExtraList) == 0x18);
 
@@ -47,14 +61,14 @@ namespace RE
 	public:
 		void AddExtra(BSExtraData* a_extra)
 		{
-			const BSAutoWriteLock l{ _extraRWLock };
-			_extraData.AddExtra(a_extra);
+			const BSAutoWriteLock l{ m_extraRWLock };
+			m_extraData.AddExtra(a_extra);
 		}
 
 		[[nodiscard]] BSExtraData* GetByType(ExtraDataType a_type) const noexcept
 		{
-			const BSAutoReadLock l{ _extraRWLock };
-			return _extraData.GetByType(a_type);
+			const BSAutoReadLock l{ m_extraRWLock };
+			return m_extraData.GetByType(a_type);
 		}
 
 		template <detail::ExtraDataListConstraint T>
@@ -72,9 +86,8 @@ namespace RE
 
 		[[nodiscard]] bool HasType(ExtraDataType a_type) const noexcept
 		{
-			using func_t = bool (*)(const ExtraDataList*, ExtraDataType);
-			static REL::Relocation<func_t> func{ ID::ExtraDataList::HasType };
-			return func(this, a_type);
+			BSAutoReadLock l{ m_extraRWLock };
+			return m_extraData.HasType(a_type);
 		}
 
 		template <detail::ExtraDataListConstraint T>
@@ -85,8 +98,8 @@ namespace RE
 
 	private:
 		// members
-		BaseExtraList           _extraData;    // 08
-		mutable BSReadWriteLock _extraRWLock;  // 20
+		BaseExtraList           m_extraData;    // 08
+		mutable BSReadWriteLock m_extraRWLock;  // 20
 	};
 	static_assert(sizeof(ExtraDataList) == 0x28);
 }

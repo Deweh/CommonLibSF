@@ -29,7 +29,8 @@ namespace RE
 			kPCTransition,
 			kTween,
 			kUnk06,
-			kFlightCamera,
+			kVehicle,
+			kFlight,
 			kShipFarTravel,
 			kShipAction,
 			kShipTargeting,
@@ -44,7 +45,9 @@ namespace RE
 			kThirdPerson,
 			kFurniture,
 			kHorse,
-			kBleedout
+			kBleedout,
+
+			kTotal
 		};
 	};
 	using CameraState = CameraStates::CameraState;
@@ -58,7 +61,8 @@ namespace RE
 		public BSTEventSink<Spaceship::TakeOffEvent>,    // 70
 		public BSTEventSink<Spaceship::DockEvent>,       // 78
 		public BSTEventSink<Spaceship::LandedSetEvent>,  // 80
-		public BSTEventSink<BSWorldOriginShiftEvent>     // 88
+		public BSTEventSink<BSWorldOriginShiftEvent>,    // 88
+		public BSTSingletonSDM<PlayerCamera>             // 90
 	{
 	public:
 		SF_RTTI_VTABLE(PlayerCamera);
@@ -103,15 +107,20 @@ namespace RE
 		void SetCameraState(CameraState a_cameraState)
 		{
 			using func_t = decltype(&PlayerCamera::SetCameraState);
-			static REL::Relocation<func_t> func{ ID::PlayerCamera::SetCameraState };  // TODO: ID changed
+			static REL::Relocation<func_t> func{ ID::PlayerCamera::SetCameraState };
 			return func(this, a_cameraState);
 		}
 
 		bool QCameraEquals(CameraState a_cameraState) const
 		{
-			using func_t = decltype(&PlayerCamera::QCameraEquals);
-			static REL::Relocation<func_t> func{ ID::PlayerCamera::QCameraEquals };
-			return func(this, a_cameraState);
+			return (currentState == cameraStates[a_cameraState]);
 		}
+
+		// members
+		std::byte unk98[0x188 - 0x98];                // 098
+		void*     cameraStates[CameraState::kTotal];  // 188
+
+		// ...
 	};
+	static_assert(offsetof(PlayerCamera, cameraStates) == 0x188);
 }

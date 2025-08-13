@@ -28,7 +28,7 @@ namespace RE
 		GameMenuBase()
 		{
 			using func_t = GameMenuBase* (*)(GameMenuBase*);
-			static REL::Relocation<func_t> func{ ID::GameMenuBase::Ctor };
+			static REL::Relocation<func_t> func{ ID::GameMenuBase::ctor };
 			func(this);
 		}
 

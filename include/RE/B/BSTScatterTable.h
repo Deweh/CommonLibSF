@@ -1,106 +1,9 @@
 #pragma once
 
+#include "RE/B/BSCRC32.h"
+
 namespace RE
 {
-	struct BSCRC32
-	{
-		static std::uint32_t GenerateCRC(std::uint32_t a_initial, const void* a_buf, std::size_t a_len)
-		{
-			static REL::Relocation<std::uint32_t*> crcTable{ REL::ID(292339) };
-			std::uint32_t                          c = a_initial;
-			const std::uint8_t*                    u = static_cast<const std::uint8_t*>(a_buf);
-			for (std::size_t i = 0; i < a_len; ++i) {
-				c = crcTable.get()[(c ^ u[i]) & 0xFF] ^ (c >> 8);
-			}
-
-			return c;
-		}
-	};
-
-	namespace BSHash
-	{
-		struct FNV1a
-		{
-			std::size_t operator()(const std::uint32_t& key)
-			{
-				return std::_Fnv1a_append_bytes(0xCBF29CE484222325, reinterpret_cast<const unsigned char*>(&key), 4);
-			}
-		};
-
-		template <typename T>
-		struct String
-		{
-			std::size_t operator()(const T& key)
-			{
-				return BSCRC32::GenerateCRC(0, key.c_str(), key.size());
-			}
-		};
-
-		struct XOR
-		{
-			std::size_t operator()(const BSFixedString& key)
-			{
-				return (reinterpret_cast<std::uint64_t>(key.c_str()) >> 32) ^ (reinterpret_cast<std::uint64_t>(key.c_str()) & 0xFFFFFFFF);
-			}
-
-			std::size_t operator()(const BSFixedStringW& key)
-			{
-				return (reinterpret_cast<std::uint64_t>(key.c_str()) >> 32) ^ (reinterpret_cast<std::uint64_t>(key.c_str()) & 0xFFFFFFFF);
-			}
-		};
-	}
-
-	template <typename T>
-	struct BSTScatterTableDefaultHashPolicy
-	{
-		std::size_t operator()(const T& key) = delete;
-	};
-
-	template <>
-	struct BSTScatterTableDefaultHashPolicy<BSFixedString>
-	{
-		std::size_t operator()(const BSFixedString& key)
-		{
-			return BSHash::XOR()(key);
-		}
-	};
-
-	template <>
-	struct BSTScatterTableDefaultHashPolicy<BSFixedStringCS>
-	{
-		std::size_t operator()(const BSFixedStringCS& key)
-		{
-			return BSHash::XOR()(key);
-		}
-	};
-
-	template <>
-	struct BSTScatterTableDefaultHashPolicy<BSFixedStringW>
-	{
-		std::size_t operator()(const BSFixedStringW& key)
-		{
-			return BSHash::XOR()(key);
-		}
-	};
-
-	template <>
-	struct BSTScatterTableDefaultHashPolicy<BSFixedStringWCS>
-	{
-		std::size_t operator()(const BSFixedStringW& key)
-		{
-			return BSHash::XOR()(key);
-		}
-	};
-
-	template <>
-	struct BSTScatterTableDefaultHashPolicy<std::uint32_t>
-	{
-		std::size_t operator()(const std::uint32_t& key)
-		{
-			return BSCRC32::GenerateCRC(0, &key, 4);
-		}
-	};
-
 	template <class T1, class T2>
 	struct BSTScatterTableDefaultKVStorage
 	{
@@ -112,8 +15,8 @@ namespace RE
 		{}
 
 		BSTScatterTableDefaultKVStorage(const BSTScatterTableDefaultKVStorage& a_rhs) :
-			key(a_rhs.Key),
-			value(a_rhs.Value)
+			key(a_rhs.key),
+			value(a_rhs.value)
 		{}
 
 		BSTScatterTableDefaultKVStorage(const std::pair<T1, T2>& pair) :
@@ -717,11 +620,11 @@ namespace RE
 		std::uint64_t _lastFree{ 0 };
 	};
 
-	template <class Key, class T, class Hash = BSTScatterTableDefaultHashPolicy<Key>, class KeyEqual = std::equal_to<Key>>
+	template <class Key, class T, class Hash = BSCRC32<Key>, class KeyEqual = std::equal_to<Key>>
 	using BSTHashMap = BSTScatterTableBase<BSTScatterTableTraits<Key, T>, 8, BSTScatterTableHeapAllocator, Hash, KeyEqual, BSTScatterTableParent1>;
 	static_assert(sizeof(BSTHashMap<void*, void*>) == 0x38);
 
-	template <class Key, class T, class Hash = BSTScatterTableDefaultHashPolicy<Key>, class KeyEqual = std::equal_to<Key>>
+	template <class Key, class T, class Hash = BSCRC32<Key>, class KeyEqual = std::equal_to<Key>>
 	using BSTHashMap2 = BSTScatterTableBase<BSTScatterTableTraits<Key, T>, 8, BSTScatterTableHeapAllocator, Hash, KeyEqual, BSTScatterTableParent2>;
 	static_assert(sizeof(BSTHashMap2<void*, void*>) == 0x30);
 }

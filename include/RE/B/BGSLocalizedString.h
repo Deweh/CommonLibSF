@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RE/B/BSCRC32.h"
 #include "RE/B/BSFixedString.h"
 
 namespace RE
@@ -39,6 +40,12 @@ namespace RE
 
 		[[nodiscard]] size_type size() const noexcept { return _data.size(); }
 		[[nodiscard]] size_type length() const noexcept { return _data.length(); }
+
+	protected:
+		template <class>
+		friend struct BSCRC32;
+
+		[[nodiscard]] const BSFixedStringCS& hash_accessor() const noexcept { return _data; }
 
 	private:
 		static constexpr std::size_t PREFIX_LENGTH = 13;

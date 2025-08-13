@@ -1,5 +1,6 @@
 #pragma once
 
+#include "RE/B/BSCRC32.h"
 #include "RE/B/BSStringPool.h"
 
 namespace RE
@@ -36,7 +37,7 @@ namespace RE
 			BSFixedString(const_pointer a_string)
 			{
 				if (a_string) {
-					GetEntry<value_type>(_data, a_string, CS);
+					BSStringPool::GetEntry(_data, a_string, CS);
 				}
 			}
 
@@ -50,7 +51,7 @@ namespace RE
 				const auto view = static_cast<std::basic_string_view<value_type>>(a_string);
 				if (!view.empty()) {
 					assert(view.data()[view.length()] == value_type{});
-					GetEntry<value_type>(_data, view.data(), CS);
+					BSStringPool::GetEntry(_data, view.data(), CS);
 				}
 			}
 
@@ -80,7 +81,7 @@ namespace RE
 			{
 				try_release();
 				if (a_string) {
-					GetEntry<value_type>(_data, a_string, CS);
+					BSStringPool::GetEntry(_data, a_string, CS);
 				}
 				return *this;
 			}
@@ -96,7 +97,7 @@ namespace RE
 				try_release();
 				if (!view.empty()) {
 					assert(view.data()[view.length()] == value_type{});
-					GetEntry<value_type>(_data, view.data(), CS);
+					BSStringPool::GetEntry(_data, view.data(), CS);
 				}
 				return *this;
 			}
@@ -159,6 +160,12 @@ namespace RE
 				return false;
 			}
 
+		protected:
+			template <class>
+			friend struct RE::BSCRC32;
+
+			[[nodiscard]] const void* hash_accessor() const noexcept { return _data; }
+
 		private:
 			template <class, bool>
 			friend class BSFixedString;
@@ -184,11 +191,11 @@ namespace RE
 			void try_acquire()
 			{
 				if (_data) {
-					_data->acquire();
+					_data->Acquire();
 				}
 			}
 
-			void try_release() { BSStringPool::Entry::release(_data); }
+			void try_release() { BSStringPool::Entry::Release(_data); }
 
 			static constexpr const value_type EMPTY[]{ 0 };
 
@@ -206,6 +213,21 @@ namespace RE
 	using BSFixedStringCS = detail::BSFixedString<char, true>;
 	using BSFixedStringW = detail::BSFixedString<wchar_t, false>;
 	using BSFixedStringWCS = detail::BSFixedString<wchar_t, true>;
+
+	template <class CharT, bool CS>
+	struct BSCRC32<detail::BSFixedString<CharT, CS>>
+	{
+	public:
+		[[nodiscard]] std::uint32_t operator()(const detail::BSFixedString<CharT, CS>& a_key) const noexcept
+		{
+			return BSCRC32<const void*>()(a_key.hash_accessor());
+		}
+	};
+
+	extern template struct BSCRC32<BSFixedString>;
+	extern template struct BSCRC32<BSFixedStringCS>;
+	extern template struct BSCRC32<BSFixedStringW>;
+	extern template struct BSCRC32<BSFixedStringWCS>;
 }
 
 template <class CharT, bool CS>

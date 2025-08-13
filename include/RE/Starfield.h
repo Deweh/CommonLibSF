@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SFSE/Impl/PCH.h"
+#include "RE/IDs.h"
 
 #include "RE/A/AIProcess.h"
 #include "RE/A/AITimeStamp.h"
@@ -184,6 +185,7 @@
 #include "RE/B/BGSWwiseKeywordMapping.h"
 #include "RE/B/BSAnimationGraph.h"
 #include "RE/B/BSBlendable.h"
+#include "RE/B/BSCRC32.h"
 #include "RE/B/BSColorCurve.h"
 #include "RE/B/BSContainer.h"
 #include "RE/B/BSCoreTypes.h"
@@ -295,7 +297,6 @@
 #include "RE/I/InteriorData.h"
 #include "RE/I/idLogging.h"
 #include "RE/I/idTCP.h"
-#include "RE/IDs.h"
 #include "RE/IDs_NiRTTI.h"
 #include "RE/IDs_RTTI.h"
 #include "RE/IDs_VTABLE.h"

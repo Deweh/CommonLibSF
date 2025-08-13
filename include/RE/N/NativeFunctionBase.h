@@ -95,14 +95,14 @@ namespace RE::BSScript
 			virtual CallResult Call(const BSTSmartPointer<Stack>& a_stack, ErrorLogger& a_errorLogger, Internal::VirtualMachine& a_vm, StackFrame* a_frame) override
 			{
 				using func_t = decltype(&NativeFunctionBase::Call);
-				static REL::Relocation<func_t> func{ ID::BSScript::Internal::NF_util::NativeFunctionBase::Invoke };
+				static REL::Relocation<func_t> func{ ID::BSScript::Internal::NF_util::NativeFunctionBase::Call };
 				return func(this, a_stack, a_errorLogger, a_vm, a_frame);
 			}
 
 			virtual BSFixedString& GetSourceFilename() override
 			{
 				using func_t = decltype(&NativeFunctionBase::GetSourceFilename);
-				static REL::Relocation<func_t> func{ ID::BSScript::Internal::NF_util::NativeFunctionBase::Unk_10 };
+				static REL::Relocation<func_t> func{ ID::BSScript::Internal::NF_util::NativeFunctionBase::GetSourceFilename };
 				return func(this);
 			}
 

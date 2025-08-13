@@ -13,14 +13,14 @@ namespace RE
 				kExternal = 1 << 1,
 			};
 
-			static void release(Entry*& a_entry)
+			static void Release(Entry*& a_entry)
 			{
-				using func_t = decltype(&Entry::release);
-				static REL::Relocation<func_t> func{ ID::BSStringPool::Entry::release };
+				using func_t = decltype(&Entry::Release);
+				static REL::Relocation<func_t> func{ ID::BSStringPool::Entry::Release };
 				return func(a_entry);
 			}
 
-			std::uint32_t acquire()
+			std::uint32_t Acquire()
 			{
 				stl::atomic_ref refCount{ _refCount };
 				return ++refCount;
@@ -66,6 +66,20 @@ namespace RE
 			std::uint8_t           _flags;     // 14
 		};
 		static_assert(sizeof(Entry) == 0x18);
+
+		static void GetEntry(BSStringPool::Entry*& a_result, const char* a_string, bool a_caseSensitive)
+		{
+			using func_t = void (*)(BSStringPool::Entry*&, const char*, bool);
+			static REL::Relocation<func_t> func{ ID::BSStringPool::GetEntry };
+			func(a_result, a_string, a_caseSensitive);
+		}
+
+		static void GetEntry(BSStringPool::Entry*& a_result, const wchar_t* a_string, bool a_caseSensitive)
+		{
+			using func_t = void (*)(BSStringPool::Entry*&, const wchar_t*, bool);
+			static REL::Relocation<func_t> func{ ID::BSStringPool::GetEntryW };
+			func(a_result, a_string, a_caseSensitive);
+		}
 	};
 	static_assert(std::is_empty_v<BSStringPool>);
 
@@ -95,23 +109,4 @@ namespace RE
 		bool                 initialized;       // 200C00
 	};
 	static_assert(sizeof(BucketTable) == 0x200C08);
-
-	template <class T>
-	void GetEntry(BSStringPool::Entry*& a_result, const T* a_string, bool a_caseSensitive);
-
-	template <>
-	inline void GetEntry<char>(BSStringPool::Entry*& a_result, const char* a_string, bool a_caseSensitive)
-	{
-		using func_t = decltype(&GetEntry<char>);
-		static REL::Relocation<func_t> func{ ID::BSStringPool::GetEntry_char_ };
-		return func(a_result, a_string, a_caseSensitive);
-	}
-
-	template <>
-	inline void GetEntry<wchar_t>(BSStringPool::Entry*& a_result, const wchar_t* a_string, bool a_caseSensitive)
-	{
-		using func_t = decltype(&GetEntry<wchar_t>);
-		static REL::Relocation<func_t> func{ ID::BSStringPool::GetEntry_wchar_t_ };  // TODO: ID changed
-		return func(a_result, a_string, a_caseSensitive);
-	}
 }

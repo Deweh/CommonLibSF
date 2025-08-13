@@ -137,6 +137,13 @@ namespace RE
 			return a_name && !_strnicmp(a_name, "QuickSave", 9);
 		}
 
+		bool IsLoadingAllowed()
+		{
+			using func_t = decltype(&BGSSaveLoadManager::IsLoadingAllowed);
+			static REL::Relocation<func_t> func{ ID::BGSSaveLoadManager::IsLoadingAllowed };
+			return func(this);
+		}
+
 		bool DeleteSaveFile(const char* a_filename, void* a_unk1, bool a_skipRemainingSavesCheck)
 		{
 			using func_t = decltype(&BGSSaveLoadManager::DeleteSaveFile);
